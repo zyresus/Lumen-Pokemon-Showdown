@@ -250,8 +250,7 @@ exports.grouplist = [
 		root: true,
 		globalonly: true,
 	},
-	{
-	
+	'&': {
 		id: "leader",
 		name: "Leader",
 		inherit: '@',
@@ -264,6 +263,7 @@ exports.grouplist = [
 		potd: true,
 		disableladder: true,
 		rank: 5
+	},
 	},
 	{
 		symbol: '#',
