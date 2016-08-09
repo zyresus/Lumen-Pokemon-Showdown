@@ -183,11 +183,11 @@ exports.appealurl = '';
 //     - battlemessage: /a command.
 exports.groupsranking = [' ', '+', '%', '@', '#', '&', '~'];
 exports.groups = {
-	'~': {
+		'~': {
 		id: "admin",
 		name: "Administrator",
 		root: true,
-		rank: 6
+		rank: 7
 	},
 	'&': {
 		id: "leader",
@@ -201,7 +201,7 @@ exports.groups = {
 		rangeban: true,
 		potd: true,
 		disableladder: true,
-		rank: 5
+		rank: 6
 	},
 	'#': {
 		id: "owner",
@@ -212,7 +212,7 @@ exports.groups = {
 		roomonly: true,
 		declare: true,
 		modchatall: true,
-		rank: 4
+		rank: 5
 	},
 	'@': {
 		id: "mod",
@@ -224,7 +224,7 @@ exports.groups = {
 		forcerename: true,
 		ip: true,
 		alts: '@u',
-		rank: 3
+		rank: 4
 	},
 	'%': {
 		id: "driver",
@@ -243,41 +243,24 @@ exports.groups = {
 		bypassblocks: 'u%@&~',
 		receiveauthmessages: true,
 		roomvoice: true,
-		rank: 2
-	{
-		symbol: '\u00A5',
-		id: "tester",
-		name: "Tester",
-		inherit: '\u2295',
-		jurisdiction: 'u',
-		youtube: true,
-		warn: true,
-		kick: true
+		rank: 3
 	},
-	{
-		symbol: '\u2295',
-		id: "operator",
-		name: "Operator",
-		inherit: '+',
-		tournamentsmoderation: true,
-		tournaments: true
-	},
-	{
-		symbol: '+',
+	'+': {
 		id: "voice",
 		name: "Voice",
 		inherit: '$',
 		joinbattle: true,
 		broadcast: true
-		rank:1
+		rank:2
 	},
-	{
+	'$': {
 		symbol: '$',
-		id: "special",
-		name: "Special",
-		inherit: ' ',
+		id: "developer",
+		name: "Developer",
+		inherit: '~',
 		alts: 's',
 		broadcast: true
+		rank: 1
 	},
 	{
 		symbol: ' ',
