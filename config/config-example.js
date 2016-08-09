@@ -242,7 +242,6 @@ exports.grouplist = [
 		name: "Administrator",
 		root: true,
 		globalonly: true
-		rank: 8
 	},
 	{
 		id: "leader",
