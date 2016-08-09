@@ -1,6 +1,6 @@
+'use strict';
+
 // The server port - the port to run Pokemon Showdown under
-//exports.port = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-//exports.bindaddress = process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
 exports.port = 8000;
 
 // proxyip - proxy IPs with trusted X-Forwarded-For headers
@@ -8,21 +8,18 @@ exports.port = 8000;
 //   of strings. Each string should be either an IP address or a subnet given
 //   in CIDR notation. You should usually leave this as `false` unless you
 //   know what you are doing.
-exports.proxyip = ['127.0.0.0/8']; 
+exports.proxyip = false;
 
 // Pokemon of the Day - put a pokemon's name here to make it Pokemon of the Day
 //   The PotD will always be in the #2 slot (not #1 so it won't be a lead)
 //   in every Random Battle team.
 exports.potd = '';
-exports.superAdmins = {
-	"config.js": 1
-};
 
 // crash guard - write errors to log file instead of crashing
 //   This is normally not recommended - if Node wants to crash, the
 //   server needs to be restarted
-//   Unfortunately, socket.io bug 409 requires some sort of crash guard
-//   https://github.com/LearnBoost/socket.io/issues/609
+//   However, most people want the server to stay online even if there is a
+//   crash, so this option is provided
 exports.crashguard = true;
 
 // login server data - don't forget the http:// and the trailing slash
@@ -64,6 +61,13 @@ exports.loginserverpublickey = "-----BEGIN RSA PUBLIC KEY-----\n" +
 	subject: 'Pokemon Showdown has crashed!'
 };**/
 
+// basic name filter - removes characters used for impersonation
+//   The basic name filter removes Unicode characters that can be used for impersonation,
+//   like the upside-down exclamation mark (looks like an i), the Greek omicron (looks
+//   like an o), etc. Disable only if you need one of the alphabets it disables, such as
+//   Greek or Cyrillic.
+exports.disablebasicnamefilter = false;
+
 // report joins and leaves - shows messages like "<USERNAME> joined"
 //   Join and leave messages are small and consolidated, so there will never
 //   be more than one line of messages.
@@ -71,7 +75,7 @@ exports.loginserverpublickey = "-----BEGIN RSA PUBLIC KEY-----\n" +
 //   /hidejoins configuration for users.
 //   This feature can lag larger servers - turn this off if your server is
 //   getting more than 80 or so users.
-exports.reportjoins = false;
+exports.reportjoins = true;
 
 // report joins and leaves periodically - sends silent join and leave messages in batches
 //   This setting will only be effective if `reportjoins` is set to false, and users will
@@ -82,7 +86,7 @@ exports.reportjoinsperiod = 0;
 // report battles - shows messages like "OU battle started" in the lobby
 //   This feature can lag larger servers - turn this off if your server is
 //   getting more than 160 or so users.
-exports.reportbattles = false;
+exports.reportbattles = true;
 
 // report joins and leaves in battle - shows messages like "<USERNAME> joined" in battle
 //   Set this to false on large tournament servers where battles get a lot of joins and leaves.
@@ -135,7 +139,7 @@ exports.consoleips = ['127.0.0.1'];
 // then the config.js file will be reloaded when it is changed.
 // This can be used to change some settings using a text editor on
 // the server.
-exports.watchconfig = false;
+exports.watchconfig = true;
 
 // logchat - whether to log chat rooms.
 exports.logchat = false;
@@ -170,10 +174,9 @@ exports.customavatars = {
 	//'userid': 'customavatar.png'
 };
 
-// Tournament announcements
-// When tournaments are created in rooms listed below, they will be announced in
-// the server's main tournament room (either the specified tourroom or by default
-// the room 'tournaments')
+// tourroom - specify a room to receive tournament announcements (defaults to
+// the room 'tournaments').
+// tourannouncements - announcements are only allowed in these rooms
 exports.tourroom = '';
 exports.tourannouncements = [/* roomids */];
 
@@ -185,7 +188,7 @@ exports.appealurl = '';
 // replsocketprefix - the prefix for the repl sockets to be listening on
 // replsocketmode - the file mode bits to use for the repl sockets
 exports.replsocketprefix = './logs/repl/';
-exports.replsocketmode = 0700;
+exports.replsocketmode = 0o600;
 
 // permissions and groups:
 //   Each entry in `grouplist' is a seperate group. Some of the members are "special"
@@ -236,6 +239,9 @@ exports.replsocketmode = 0700;
 //     - tournaments: creating tournaments (/tour new, settype etc.)
 //     - tournamentsmoderation: /tour dq, autodq, end etc.
 //     - tournamentsmanagement: enable/disable tournaments.
+//     - minigame: make minigames (hangman, polls, etc.).
+//     - game: make games.
+//     - gamemanagement: enable/disable games and minigames.
 exports.grouplist = [
 	{
 		id: "admin",
