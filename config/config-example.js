@@ -251,26 +251,19 @@ exports.grouplist = [
 		globalonly: true,
 	},
 	{
-		symbol: '&',
+	
 		id: "leader",
 		name: "Leader",
 		inherit: '@',
 		jurisdiction: '@u',
 		promote: 'u',
-		roomowner: true,
-		roommod: true,
-		roomdriver: true,
 		forcewin: true,
 		declare: true,
 		modchatall: true,
 		rangeban: true,
-		makeroom: true,
-		editroom: true,
 		potd: true,
 		disableladder: true,
-		globalonly: true,
-		tournamentsmanagement: true,
-		rank: 7
+		rank: 5
 	},
 	{
 		symbol: '#',
