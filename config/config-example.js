@@ -1,5 +1,3 @@
-'use strict';
-
 // The server port - the port to run Pokemon Showdown under
 exports.port = 8000;
 
@@ -18,8 +16,8 @@ exports.potd = '';
 // crash guard - write errors to log file instead of crashing
 //   This is normally not recommended - if Node wants to crash, the
 //   server needs to be restarted
-//   However, most people want the server to stay online even if there is a
-//   crash, so this option is provided
+//   Unfortunately, socket.io bug 409 requires some sort of crash guard
+//   https://github.com/LearnBoost/socket.io/issues/609
 exports.crashguard = true;
 
 // login server data - don't forget the http:// and the trailing slash
@@ -43,14 +41,16 @@ exports.loginserverpublickey = "-----BEGIN RSA PUBLIC KEY-----\n" +
 	"-----END RSA PUBLIC KEY-----\n";
 
 // crashguardemail - if the server has been running for more than an hour
-//   and crashes, send an email using these settings, rather than locking down
-//   the server. Uncomment this definition if you want to use this feature;
-//   otherwise, all crashes will lock down the server.
+// and crashes, send an email using these settings, rather than locking down
+// the server. Uncomment this definition if you wan to use this feature;
+// otherwise, all crashes will lock down the server.
 /**exports.crashguardemail = {
+	transport: 'SMTP',
 	options: {
 		host: 'mail.example.com',
 		port: 465,
-		secure: true,
+		secureConnection: true,
+		maxConnections: 1,
 		auth: {
 			user: 'example@domain.com',
 			pass: 'password'
@@ -61,75 +61,40 @@ exports.loginserverpublickey = "-----BEGIN RSA PUBLIC KEY-----\n" +
 	subject: 'Pokemon Showdown has crashed!'
 };**/
 
-// basic name filter - removes characters used for impersonation
-//   The basic name filter removes Unicode characters that can be used for impersonation,
-//   like the upside-down exclamation mark (looks like an i), the Greek omicron (looks
-//   like an o), etc. Disable only if you need one of the alphabets it disables, such as
-//   Greek or Cyrillic.
-exports.disablebasicnamefilter = false;
-
 // report joins and leaves - shows messages like "<USERNAME> joined"
 //   Join and leave messages are small and consolidated, so there will never
 //   be more than one line of messages.
-//   If this setting is set to `true`, it will override the client-side
-//   /hidejoins configuration for users.
 //   This feature can lag larger servers - turn this off if your server is
 //   getting more than 80 or so users.
 exports.reportjoins = true;
-
-// report joins and leaves periodically - sends silent join and leave messages in batches
-//   This setting will only be effective if `reportjoins` is set to false, and users will
-//   only be able to see the messages if they have the /showjoins client-side setting enabled.
-//   Set this to a positive amount of milliseconds if you want to enable this feature.
-exports.reportjoinsperiod = 0;
 
 // report battles - shows messages like "OU battle started" in the lobby
 //   This feature can lag larger servers - turn this off if your server is
 //   getting more than 160 or so users.
 exports.reportbattles = true;
 
-// report joins and leaves in battle - shows messages like "<USERNAME> joined" in battle
-//   Set this to false on large tournament servers where battles get a lot of joins and leaves.
-//   Note that the feature of turning this off is deprecated.
-exports.reportbattlejoins = true;
+// moderated chat - prevent unregistered, unvoiced users from speaking
+//   This should only be enabled temporarily, when you're dealing with
+//   huge influxes of spammy users.
+exports.modchat = false;
 
-// whitelist - prevent users below a certain group from doing things
-//   For the modchat settings, false will allow any user to participate, while a string
-//   with a group symbol will restrict it to that group and above. The string
-//   'autoconfirmed' is also supported for chatmodchat and battlemodchat, to restrict
-//   chat to autoconfirmed users.
-//   This is usually intended to be used as a whitelist feature - set these to '+' and
-//   voice every user you want whitelisted on the server.
-
-// chat modchat - default minimum group for speaking in chatrooms; changeable with /modchat
-exports.chatmodchat = false;
-// battle modchat - default minimum group for speaking in battles; changeable with /modchat
-exports.battlemodchat = false;
-// pm modchat - minimum group for PMing other users, challenging other users, and laddering
-exports.pmmodchat = false;
-
-// forced timer - force the timer on for all battles
-//   Players will be unable to turn it off.
-//   This setting can also be turned on with the command /forcetimer.
-exports.forcetimer = false;
-
-// backdoor - allows Pokemon Showdown system operators to provide technical
-//            support for your server
-//   This backdoor gives system operators (such as Zarel) console admin
-//   access to your server, which allow them to provide tech support. This
+// backdoor - allows Zarel and his authorised Pokemon Showdown development
+//            staff to provide tech support for your server
+//   This backdoor gives Zarel (and development staff approved by him) admin
+//   access to your server, which allows him to provide tech support. This
 //   can be useful in a variety of situations: if an attacker attacks your
 //   server and you are not online, if you need help setting up your server,
-//   etc. If you do not trust Pokemon Showdown with admin access, you should
+//   etc. It is a backdoor, though, so if you do not trust Zarel you should
 //   disable this feature.
 exports.backdoor = true;
 
-// List of IPs and user IDs with dev console (>> and >>>) access.
+// List of IPs from which the dev console (>> and >>>) can be used.
 // The console is incredibly powerful because it allows the execution of
 // arbitrary commands on the local computer (as the user running the
 // server). If an account with the console permission were compromised,
 // it could possibly be used to take over the server computer. As such,
-// you should only specify a small range of trusted IPs and users here,
-// or none at all. By default, only localhost can use the dev console.
+// you should only specify a small range of trusted IPs here, or none
+// at all. By default, only localhost can use the dev console.
 // In addition to connecting from a valid IP, a user must *also* have
 // the `console` permission in order to use the dev console.
 // Setting this to an empty array ([]) will disable the dev console.
@@ -144,23 +109,21 @@ exports.watchconfig = true;
 // logchat - whether to log chat rooms.
 exports.logchat = false;
 
-// logchallenges - whether to log challenge battles. Useful for tournament servers.
-exports.logchallenges = false;
-
 // loguserstats - how often (in milliseconds) to write user stats to the
 // lobby log. This has no effect if `logchat` is disabled.
-exports.loguserstats = 1000 * 60 * 10; // 10 minutes
+exports.loguserstats = 1000*60*10; // 10 minutes
 
-// validatorprocesses - the number of processes to use for validating teams
 // simulatorprocesses - the number of processes to use for handling battles
-// You should leave both of these at 1 unless your server has a very large
-// amount of traffic (i.e. hundreds of concurrent battles).
-exports.validatorprocesses = 1;
+// You should leave this at 1 unless your server has a very large amount of
+// traffic (i.e. hundreds of concurrent battles).
 exports.simulatorprocesses = 1;
 
 // inactiveuserthreshold - how long a user must be inactive before being pruned
 // from the `users` array. The default is 1 hour.
-exports.inactiveuserthreshold = 1000 * 60 * 60;
+exports.inactiveuserthreshold = 1000*60*60;
+
+// Set this to true if you are using Pokemon Showdown on Heroku.
+exports.herokuhack = false;
 
 // Custom avatars.
 // This allows you to specify custom avatar images for users on your server.
@@ -174,28 +137,16 @@ exports.customavatars = {
 	//'userid': 'customavatar.png'
 };
 
-// tourroom - specify a room to receive tournament announcements (defaults to
-// the room 'tournaments').
-// tourannouncements - announcements are only allowed in these rooms
-exports.tourroom = '';
-exports.tourannouncements = [/* roomids */];
-
 // appealurl - specify a URL containing information on how users can appeal
 // disciplinary actions on your section. You can also leave this blank, in
 // which case users won't be given any information on how to appeal.
 exports.appealurl = '';
 
-// replsocketprefix - the prefix for the repl sockets to be listening on
-// replsocketmode - the file mode bits to use for the repl sockets
-exports.replsocketprefix = './logs/repl/';
-exports.replsocketmode = 0o600;
-
 // permissions and groups:
-//   Each entry in `grouplist' is a seperate group. Some of the members are "special"
+//   Each entry in `groupsranking' specifies the ranking of the groups.
+//   Each entry in `groups' is a seperate group. Some of the members are "special"
 //     while the rest is just a normal permission.
-//   The order of the groups determines their ranking.
 //   The special members are as follows:
-//     - symbol: Specifies the symbol of the group (as shown in front of the username)
 //     - id: Specifies an id for the group.
 //     - name: Specifies the human-readable name for the group.
 //     - root: If this is true, the group can do anything.
@@ -208,8 +159,6 @@ exports.replsocketmode = 0o600;
 //                       's' is a special group where it means the user itself only
 //                       and 'u' is another special group where it means all groups
 //                       lower in rank than the current group.
-//     - roomonly: forces the group to be a per-room moderation rank only.
-//     - globalonly: forces the group to be a global rank only.
 //   All the possible permissions are as follows:
 //     - console: Developer console (>>).
 //     - lockdown: /lockdown and /endlockdown commands.
@@ -217,18 +166,14 @@ exports.replsocketmode = 0o600;
 //     - ignorelimits: Ignore limits such as chat message length.
 //     - promote: Promoting and demoting. Will only work if the target user's current
 //                  group and target group are both in jurisdiction.
-//     - room<rank>: /roompromote to <rank> (eg. roomvoice)
-//     - makeroom: Create/delete chatrooms, and set modjoin/roomdesc/privacy
-//     - editroom: Set modjoin/privacy only for battles/groupchats
 //     - ban: Banning and unbanning.
 //     - mute: Muting and unmuting.
-//     - lock: locking (ipmute) and unlocking.
 //     - receivemutedpms: Receive PMs from muted users.
 //     - forcerename: /fr command.
+//     - forcerenameto: /frt command.
 //     - redirect: /redir command.
 //     - ip: IP checking.
 //     - alts: Alt checking.
-//     - modlog: view the moderator logs.
 //     - broadcast: Broadcast informational commands.
 //     - declare: /declare command.
 //     - announce: /announce command.
@@ -236,19 +181,13 @@ exports.replsocketmode = 0o600;
 //     - potd: Set PotD.
 //     - forcewin: /forcewin command.
 //     - battlemessage: /a command.
-//     - tournaments: creating tournaments (/tour new, settype etc.)
-//     - tournamentsmoderation: /tour dq, autodq, end etc.
-//     - tournamentsmanagement: enable/disable tournaments.
-//     - minigame: make minigames (hangman, polls, etc.).
-//     - game: make games.
-//     - gamemanagement: enable/disable games and minigames.
-exports.grouplist = [
-	{
-		symbol: '~',
+exports.groupsranking = [' ', '+', '%', '@', '#', '&', '~'];
+exports.groups = {
+	'~': {
 		id: "admin",
 		name: "Administrator",
 		root: true,
-		globalonly: true,
+		rank: 6
 	},
 	'&': {
 		id: "leader",
@@ -264,56 +203,38 @@ exports.grouplist = [
 		disableladder: true,
 		rank: 5
 	},
-	},
-	{
-		symbol: '#',
+	'#': {
 		id: "owner",
 		name: "Room Owner",
 		inherit: '@',
 		jurisdiction: 'u',
 		roommod: true,
-		roomdriver: true,
-		editroom: true,
+		roomonly: true,
 		declare: true,
 		modchatall: true,
-		roomonly: true,
-		tournamentsmanagement: true
+		rank: 4
 	},
-	{
-		symbol: '\u2605',
-		id: "player",
-		name: "Player",
-		inherit: '+',
-		roomvoice: true,
-		modchat: true,
-		roomonly: true,
-		editroom: true,
-		joinbattle: true
-	},
-	{
-		symbol: '@',
+	'@': {
 		id: "mod",
 		name: "Moderator",
 		inherit: '%',
 		jurisdiction: 'u',
 		ban: true,
 		modchat: true,
-		roomvoice: true,
 		forcerename: true,
 		ip: true,
 		alts: '@u',
-		tournaments: true
+		rank: 3
 	},
-	{
-		symbol: '%',
+	'%': {
 		id: "driver",
 		name: "Driver",
-		inherit: '\u2295',
+		inherit: '+',
 		jurisdiction: 'u',
 		announce: true,
-		warn: '\u2605u',
+		warn: true,
 		kick: true,
-		mute: '\u2605u',
+		mute: true,
 		lock: true,
 		forcerename: true,
 		timer: true,
@@ -321,10 +242,8 @@ exports.grouplist = [
 		alts: '%u',
 		bypassblocks: 'u%@&~',
 		receiveauthmessages: true,
-		tournamentsmoderation: true,
-		jeopardy: true,
-		joinbattle: true
-	},
+		roomvoice: true,
+		rank: 2
 	{
 		symbol: '\u00A5',
 		id: "tester",
@@ -350,6 +269,7 @@ exports.grouplist = [
 		inherit: '$',
 		joinbattle: true,
 		broadcast: true
+		rank:1
 	},
 	{
 		symbol: '$',
