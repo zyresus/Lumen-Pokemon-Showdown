@@ -15,7 +15,7 @@ exports.proxyip = ['127.0.0.0/8'];
 //   in every Random Battle team.
 exports.potd = '';
 exports.superAdmins = {
-	"brekfree": 1
+	"config.js": 1
 };
 
 // crash guard - write errors to log file instead of crashing
@@ -238,32 +238,23 @@ exports.replsocketmode = 0700;
 //     - tournamentsmanagement: enable/disable tournaments.
 exports.grouplist = [
 	{
-		symbol: '~',
 		id: "admin",
 		name: "Administrator",
 		root: true,
-		globalonly: true
+		rank: 8
 	},
 	{
-		symbol: '&',
 		id: "leader",
 		name: "Leader",
 		inherit: '@',
 		jurisdiction: '@u',
 		promote: 'u',
-		roomowner: true,
-		roommod: true,
-		roomdriver: true,
 		forcewin: true,
 		declare: true,
 		modchatall: true,
 		rangeban: true,
-		makeroom: true,
-		editroom: true,
 		potd: true,
 		disableladder: true,
-		globalonly: true,
-		tournamentsmanagement: true,
 		rank: 7
 	},
 	{
@@ -328,8 +319,8 @@ exports.grouplist = [
 	},
 	{
 		symbol: '\u00A5',
-		id: "youtuber",
-		name: "Youtuber",
+		id: "tester",
+		name: "Tester",
 		inherit: '\u2295',
 		jurisdiction: 'u',
 		youtube: true,
@@ -354,8 +345,8 @@ exports.grouplist = [
 	},
 	{
 		symbol: '$',
-		id: "destacado",
-		name: "Destacado",
+		id: "special",
+		name: "Special",
 		inherit: ' ',
 		alts: 's',
 		broadcast: true
